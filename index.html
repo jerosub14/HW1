@@ -109,10 +109,7 @@
       		const xaxis = d3.axisBottom().scale(xScale);
       		const yaxis = d3.axisLeft().scale(yScale);
       		const colorscale = d3.scaleOrdinal()
-      		.range(['red', 'green', 'blue', 'DarkGoldenRod', 'DarkMagenta ', 'DeepPink', 'Orange']);
-
-
-<!-- this function will get the data stated as string and convert it in to numbers-->
+      		.range(['red', 'green', 'blue', 'DarkGoldenRod', 'DarkMagenta ', 'DeepPink', 'Orange']); //function will get the data stated as string and convert it in to numbers-->
 
 			const row = d => {
 				d.Year = +d.Year;
@@ -123,7 +120,7 @@
 				d.TotalEmi=+d.TotalEmi;
 				return d;
 			};
-			
+			 // read the data
 			d3.csv('data.csv', row, data=>{
 				console.log(data);
         		xScale
