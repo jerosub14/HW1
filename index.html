@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="/normalize.css" rel="stylesheet">
+		    <meta charset="utf-8">
+		    <meta name="viewport" content="width=device-width">
+		    <script src="https://d3js.org/d3.v4.min.js"></script>
+		    <title>Alvaro's First Visualization</title>
+		<style>
+			header{
+				text-align: center;
+				color:white;
+			}
+			body{ background-image: url("BG.jpg");
+		background-size:Cover;
+		color:white;}
+		article{
+			max-width:500px
+			padding:20px;
+			margin: 0 auto;
+			color: black;
+			background-color: rgba(255,255,255,0.5);
+		}
+		.axis-label{
+			fill: white;
+			font-size: 1.5em;
+		}
+		.domain {
+			stroke: white;
+		}
+		.tick line{
+			stroke: white;
+		}
+		.tick text{
+			fill: white;
+		}
+		</style>
+	</head>
+	<body>
+		<header>
+		<h1>
+			Alvaro Callejas's first visualization
+		</h1>
+		<h2>Was Lawrence Summers right and wrong at the same time?</h2>
+		</header>
+		<article>
+		<p>I am hoping to learn how to elaborate visualizations that will enable my target audience to understand some specific concepts and results from my research. I have no experience with web programing, but I am really excited about it.</p>
+		<p>
+			The data used in this visualization contains yearly pollution emissions per country and the Human Development Index calculated by the United Nations. The objective of this visualization is to show the relationship between contamination and development and check if the affirmation made by Lawrence Summers (Chief economist in the World Bank, Treasury Secretary 1999-2001, Director of the National Economic Council and former Harvard President) in his infamous World Bank 1991 memo has some statistical background.</p> 
+
+			<p>Here is part of his memo:</p>
+
+			<p>"the economic logic behind dumping a load of toxic waste in the lowest wage country is impeccable and we should face up to that... I've always thought that under-populated countries in Africa are vastly underpolluted."</p> 
+
+			<p>In his memo, Summers states that the cost of pollution is given by the production that each country foregoes when people die because of pollution levels. Given this, in the memo he infers that given that in low wage countries life expectancy is relatively low compared with high wage (large polluter) counties, the cost of contamination is 0, therefore, these countries should receive pollution coming from high-income countries.</p>
+
+			<p>This could be true, but this public policy will hold a big ethical conflict. The full text of the memo can be found <a href="https://en.wikipedia.org/wiki/Summers_memo">here</a>.
+				<p>data source link:</p>
+				<a href="http://data.un.org/Explorer.aspx?d=ENV"><img src="logo_small.png"></a>
+		</article>
+		<svg width="960" height="500"></svg>
+		<script>
+			const xValue= d => d.TotalEmi;//renaming the variables used in the graph-->
+
+			//Set the variables and functions
+
+			const yValue = d => d.HDI;
+			const xlabel = 'Total emissions Tons'
+			const ylabel = 'Human development Index'
+			const margin = { left: 60, right: 20, top: 30, bottom: 50 };//creates space so the graph don't seem to be cutted off
+			const colorvalue = d => d.Year;
+
+			const svg = d3.select('svg');
+			const width = svg.attr('width'); //get the atributes og width and height we set in line 48-->
+			const height = svg.attr('height');
+			const innerwidth = width - margin.left - margin.right;
+      		const innerheight = height - margin.top - margin.bottom;
+
+			const g = svg.append('g')
+			.attr('transform', `translate(${margin.left}, ${margin.top})`); //this last line will make everithing in group g to be moved based on the marging-->
+
+			// Set Axis
+
+			const xaxisG = g.append('g')
+			.attr('transform', `translate(0, ${innerheight})`); // moves the axes to the bottom of the frame.
+			const yaxisG = g.append('g')
+
+			xaxisG.append('text')
+			.attr('class','axis-label')
+			.attr('x',innerwidth / 2)
+			.attr('y',35)
+			.text(xlabel);
+
+			yaxisG.append('text')
+			.attr('class','axis-label')
+			.attr('x',-innerheight / 2)
+			.attr('y',-40)
+			//.attr('transform', `rotate(-90) translate(${innerheight / 2})`);
+			.attr('transform', `rotate(-90)`)
+			.style('text-anchor', 'middle')
+			.text(ylabel);
+
+
+			// Set variable characteristics	
+
+
+			const xScale = d3.scaleLinear(); //scaling the x and y axes to adjust to the data
+			const yScale = d3.scaleLinear();
+      		const xaxis = d3.axisBottom().scale(xScale);
+      		const yaxis = d3.axisLeft().scale(yScale);
+      		const colorscale = d3.scaleOrdinal()
+      		.range(['red', 'green', 'blue', 'DarkGoldenRod', 'DarkMagenta ', 'DeepPink', 'Orange']);
+
+
+<!-- this function will get the data stated as string and convert it in to numbers-->
+
+			const row = d => {
+				d.Year = +d.Year;
+				d.Methane=+d.Methane;
+				d.CO2=+d.CO2;
+				d.Greenhouse=+d.Greenhouse;
+				d.HDI=+d.HDI;
+				d.TotalEmi=+d.TotalEmi;
+				return d;
+			};
+			
+			d3.csv('data.csv', row, data=>{
+				console.log(data);
+        		xScale
+          		.domain(d3.extent(data, xValue)) // creates the domain in wich x data is going to be plotted.
+          		.range([0, innerwidth]); // creates the range in wich x data is going to be plotted.
+        		yScale
+          		.domain(d3.extent(data, yValue))
+          		.range([innerheight, 0]);
+				g.selectAll('circle').data(data)
+				.enter().append('circle')
+				.attr('cx', d => xScale(xValue(d))) // creates the point on the x,y coordinates where the points will be located.
+				.attr('cy', d => yScale(yValue(d)))
+				.attr('r', 3)
+				.attr('fill',d => colorscale(colorvalue(d)));
+			xaxisG.call(xaxis);
+			yaxisG.call(yaxis);
+			});
+		</script>
+	</body>
